@@ -36,7 +36,7 @@ function ShareAnnotations({ toastMessenger }: ShareAnnotationsProps) {
     try {
       if (shareURI) {
         await copyPlainText(shareURI);
-        toastMessenger.success('Copied share link to clipboard');
+        toastMessenger.success('Copied share link to clipboard!');
       }
     } catch (err) {
       toastMessenger.error('Unable to copy link');
