@@ -1,4 +1,3 @@
-import { quote } from '../helpers/annotation-metadata';
 import type { SidebarStore } from '../store';
 import { retryPromiseOperation } from '../util/retry';
 import type { AnnotationsService } from './annotations';
@@ -53,7 +52,7 @@ export class AutosaveService {
     const autosaveNewHighlights = () => {
       const newHighlights = this._store.newHighlights();
 
-      newHighlights.forEach(highlight => {
+      newHighlights.forEach(async highlight => {
         // Because this is a new annotation object, it does not yet have an `id`
         // property. Use the local `$tag` for uniqueness instead.
         const htag = highlight.$tag;
@@ -64,22 +63,19 @@ export class AutosaveService {
 
         this._saving.add(htag);
 
-        retryPromiseOperation(() => this._annotationsService.save(highlight))
-          .then(() => {
-            this._toastMessenger.success(`Highlighted "${quote(highlight)}"`, {
-              visuallyHidden: true,
-            });
-          })
-          .catch(() => {
-            // save failed after retries
-            this._failed.add(htag);
-          })
-          .finally(() => {
-            // Request is complete, no longer attempting to save
-            this._saving.delete(htag);
-          });
-      });
-    };
+        try {
+          const savedAnnotation = await retryPromiseOperation(() => this._annotationsService.save(highlight));
+          if(savedAnnotation.links.incontext !== undefined) {
+            this._toastMessenger.copy_to_clipboard(savedAnnotation.links.incontext);
+          }
+        } catch (error) {
+          this._failed.add(htag);
+        } finally {
+          this._saving.delete(htag);
+        }
+
+      })
+    }
 
     this._store.subscribe(autosaveNewHighlights);
   }

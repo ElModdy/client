@@ -15,7 +15,7 @@ import {
 import type { SidebarStore } from '../store';
 import type { AnnotationActivityService } from './annotation-activity';
 import type { APIService } from './api';
-import { copyPlainText } from '../util/copy-to-clipboard';
+//import { copyPlainText } from '../util/copy-to-clipboard';
 
 /**
  * A service for creating, updating and persisting annotations both in the
@@ -262,10 +262,6 @@ export class AnnotationsService {
 
     // Clear out any pending changes (draft)
     this._store.removeDraft(annotation);
-    
-    if (savedAnnotation.links.incontext !== undefined) {
-      copyPlainText("[here](" + savedAnnotation.links.incontext+ ")");
-    }
 
     // Add (or, in effect, update) the annotation to the store's collection
     this._store.addAnnotations([savedAnnotation]);

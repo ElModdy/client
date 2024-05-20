@@ -26,7 +26,7 @@ export type MessageOptions = {
   delayed?: boolean;
 };
 
-export type MessageType = 'error' | 'success' | 'notice';
+export type MessageType = 'error' | 'success' | 'notice' | 'clipboard';
 
 type MessageData = {
   type: MessageType;
@@ -40,6 +40,7 @@ type MessageData = {
  */
 // @inject
 export class ToastMessengerService extends TinyEmitter {
+  
   private _store: SidebarStore;
   private _window: Window;
 
@@ -86,7 +87,7 @@ export class ToastMessengerService extends TinyEmitter {
    * extant in the store's collection of toast messages (i.e. has the same
    * `type` and `message` text of an existing message).
    */
-  private _addMessage(
+  private async _addMessage(
     type: MessageType,
     messageText: string,
     {
@@ -118,6 +119,7 @@ export class ToastMessengerService extends TinyEmitter {
     };
 
     this._store.addToastMessage(message);
+
     this.emit('toastMessageAdded', message);
   }
 
@@ -133,6 +135,10 @@ export class ToastMessengerService extends TinyEmitter {
    */
   success(messageText: string, options?: MessageOptions) {
     this._addMessage('success', messageText, options);
+  }
+
+  copy_to_clipboard(incontext: string) {
+    this._addMessage('clipboard', incontext, {visuallyHidden: true});
   }
 
   /**

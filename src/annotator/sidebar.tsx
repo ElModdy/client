@@ -28,6 +28,7 @@ import { sidebarTrigger } from './sidebar-trigger';
 import { ToolbarController } from './toolbar';
 import type { Emitter, EventBus } from './util/emitter';
 import { createShadowRoot } from './util/shadow-root';
+import { copyPlainText } from '../sidebar/util/copy-to-clipboard';
 
 // Minimum width to which the iframeContainer can be resized.
 export const MIN_RESIZE = 280;
@@ -458,7 +459,10 @@ export class Sidebar implements Destroyable {
     // Sidebar listens to the `toastMessageAdded` and `toastMessageDismissed`
     // events coming from the sidebar's iframe and re-publishes them via the
     // emitter
-    this._sidebarRPC.on('toastMessageAdded', (newMessage: ToastMessage) => {
+    this._sidebarRPC.on('toastMessageAdded', async (newMessage: ToastMessage) => {
+      if(newMessage.type === 'clipboard' && typeof newMessage.message === "string"){
+        await copyPlainText("[here]("+newMessage.message+")");
+      }
       this._emitter.publish('toastMessageAdded', newMessage);
     });
     this._sidebarRPC.on('toastMessageDismissed', (messageId: string) => {
